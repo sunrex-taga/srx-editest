@@ -56,6 +56,7 @@ type Dendata struct{
 	Sumsu int `json:"sumsu"`
 	Sumgenkn int `json:"sumgenkn"`
 	Sumurikn int `json:"sumurikn"`
+	Gyono string `json:"gyono"`
 	Shocd string `json:"shocd"`
 	Jancd string `json:"jancd"`
 	Shonma string `json:"shonma"`
@@ -167,18 +168,18 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface, function stri
 		return t.Write(stub, args)
 	} else if function == "init_dendata" {									//create a new dendata
 		return t.init_dendata(stub, args)
-	} else if function == "set_user" {										//change owner of a dendata
-		res, err := t.set_user(stub, args)
-		cleanTrades(stub)													//lets make sure all open trades are still valid
-		return res, err
-	} else if function == "open_trade" {									//create a new trade order
-		return t.open_trade(stub, args)
-	} else if function == "perform_trade" {									//forfill an open trade order
-		res, err := t.perform_trade(stub, args)
-		cleanTrades(stub)													//lets clean just in case
-		return res, err
-	} else if function == "remove_trade" {									//cancel an open trade order
-		return t.remove_trade(stub, args)
+//	} else if function == "set_user" {										//change owner of a dendata
+//		res, err := t.set_user(stub, args)
+//		cleanTrades(stub)													//lets make sure all open trades are still valid
+//		return res, err
+//	} else if function == "open_trade" {									//create a new trade order
+//		return t.open_trade(stub, args)
+//	} else if function == "perform_trade" {									//forfill an open trade order
+//		res, err := t.perform_trade(stub, args)
+//		cleanTrades(stub)													//lets clean just in case
+//		return res, err
+//	} else if function == "remove_trade" {									//cancel an open trade order
+//		return t.remove_trade(stub, args)
 	}
 	fmt.Println("invoke did not find func: " + function)					//error
 
@@ -287,9 +288,9 @@ func (t *SimpleChaincode) Write(stub shim.ChaincodeStubInterface, args []string)
 func (t *SimpleChaincode) init_dendata(stub shim.ChaincodeStubInterface, args []string) ([]byte, error) {
 	var err error
 
-	//   0       1       2     3
-	// "asdf", "blue", "35", "bob"
-	if len(args) != 4 {
+//	//   0       1       2     3
+//	// "asdf", "blue", "35", "bob"
+	if len(args) != 32 {
 		return nil, errors.New("Incorrect number of arguments. Expecting 4")
 	}
 
@@ -301,19 +302,61 @@ func (t *SimpleChaincode) init_dendata(stub shim.ChaincodeStubInterface, args []
 	if len(args[1]) <= 0 {
 		return nil, errors.New("2nd argument must be a non-empty string")
 	}
-	if len(args[2]) <= 0 {
-		return nil, errors.New("3rd argument must be a non-empty string")
+//	if len(args[2]) <= 0 {
+//		return nil, errors.New("3rd argument must be a non-empty string")
+//	}
+//	if len(args[3]) <= 0 {
+//		return nil, errors.New("4th argument must be a non-empty string")
+//	}
+	if len(args[18]) <= 0 {
+		return nil, errors.New("18th argument must be a non-empty string")
 	}
-	if len(args[3]) <= 0 {
-		return nil, errors.New("4th argument must be a non-empty string")
+	if len(args[19]) <= 0 {
+		return nil, errors.New("19th argument must be a non-empty string")
 	}
-	sysdenno := args[0]
-	color := strings.ToLower(args[1])
-	user := strings.ToLower(args[3])
-	size, err := strconv.Atoi(args[2])
-	if err != nil {
-		return nil, errors.New("3rd argument must be a numeric string")
-	}
+	datsyu   := args[0]
+	sysdenno := args[1]
+	tokcd    := args[2]
+	bmncd    := args[3]
+	hatdt    := args[4]
+	noudt    := args[5]
+	nouydt   := args[6]
+	bumcd    := args[7]
+	msecd    := args[8]
+	msenm    := args[9]
+	kentencd := args[10]
+	kentennm := args[11]
+	denno    := args[12]
+	denkb    := args[13]
+	binkb    := args[14]
+	sumsu    := strconv.Atoi(args[15])
+	sumgenkn := strconv.Atoi(args[16])
+	sumurikn := strconv.Atoi(args[17])
+	gyono    := args[18]
+	shocd    := args[19]
+	jancd    := args[20]
+	shonma   := args[21]
+	shonmb   := args[22]
+	untnm    := args[23]
+	irisu    := strconv.Atoi(args[24])
+	cassu    := strconv.Atoi(args[25])
+	gentk    := strconv.Atoi(args[26])
+	uritk    := strconv.Atoi(args[27])
+	suryo    := strconv.Atoi(args[28])
+	genkn    := strconv.Atoi(args[29])
+	urikn    := strconv.Atoi(args[30])
+	riykb    := args[31]
+//	if err != nil {
+//		return nil, errors.New("urikn argument must be a numeric string")
+//	}
+	riykb    := args[30]
+//	name := args[0]
+//	color := strings.ToLower(args[1])
+//	user := strings.ToLower(args[3])
+//	size, err := strconv.Atoi(args[2])
+//	if err != nil {
+//		return nil, errors.New("3rd argument must be a numeric string")
+//	}
 
 	//check if dendata already exists
 	dendataAsBytes, err := stub.GetState(sysdenno)
@@ -329,7 +372,14 @@ func (t *SimpleChaincode) init_dendata(stub shim.ChaincodeStubInterface, args []
 	}
 	
 	//build the dendata json string manually
-	str := `{"sysdenno": "` + sysdenno + `", "color": "` + color + `", "size": ` + strconv.Itoa(size) + `, "user": "` + user + `"}`
+//	str := `{"sysdenno": "` + sysdenno + `", "color": "` + color + `", "size": ` + strconv.Itoa(size) + `, "user": "` + user + `"}`
+	str := `{"datsyu": "` + datsyu + `", "sysdenno": "` + sysdenno + `", "tokcd": "` + tokcd + `", "bmncd": "` + bmncd + `", "hatdt": "` + hatdt + `", 
+			"noudt": "` + noudt + `", "nouydt": "` + nouydt + `", "bumcd": "` + bumcd + `", "msecd": "` + msecd + `", "msenm": "` + msenm + `", 
+			"kentencd": "` + kentencd + `", "kentennm": "` + kentennm + `", "denno": "` + denno + `", "denkb": "` + denkb + `", "binkb": "` + binkb + `", 
+			"sumsu": ` + strconv.Itoa(sumsu) + `, "sumgenkn": ` + strconv.Itoa(sumgenkn) + `, "sumurikn": ` + strconv.Itoa(sumurikn) + `, "gyono": "` + gyono + `",, "shocd": "` + shocd + `", 
+			"jancd": "` + jancd + `", "shonma": "` + shonma + `", "shonmb": "` + shonmb + `", "untnm": "` + untnm + `", "irisu": ` + strconv.Itoa(irisu) + `, 
+			"cassu": ` + strconv.Itoa(cassu) + `, "gentk": ` + strconv.Itoa(gentk) + `, "uritk": ` + strconv.Itoa(uritk) + `, "suryo": ` + strconv.Itoa(suryo) + `, 
+			"genkn": ` + strconv.Itoa(genkn) + `, "urikn": ` + strconv.Itoa(urikn) + `, "riykb": "` + riykb + `"}`
 	err = stub.PutState(sysdenno, []byte(str))									//store dendata with id as key
 	if err != nil {
 		return nil, err
